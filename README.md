@@ -28,7 +28,6 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 	* Example: select the "text" property of a "InputField" component
 
 
-
 ## <a id="installation"></a>Installation
 
 You can install Unity-EventBinder using the following method:
@@ -37,8 +36,6 @@ You can install Unity-EventBinder using the following method:
 
     * Unity Package: /Unity Asset/ **EventBinder[date]-[build].unitypackage** - Including a sample scene
     * Source Code: /Source Code/Assets..
-
-
 
 
 ## <a id="usage"></a>Usage
@@ -62,11 +59,11 @@ There are 3 main components for the EventBinder plugin
 		* This will be an event from the **EventsCollection** class
 		* If the event has arguments you will need to populate the arguments with values
 			* **Static** - A static, hard-coded value written in the Inspector
-			* **Dynamic** - The value will be retrieved at runtime from the specified component. For example: the **text** property of a **InputField**  or the rotation of an object, or the position of an object..etc
-			Combine this with the ability of adding limitless listeners to the events and you more easily modularize your project.
+			* **Dynamic** - The value will be retrieved at runtime from the specified component. For example: the **text** property of a **InputField**  or the rotation of an object, or the position of an object..etc. 
+			Combine this with the ability of adding limitless listeners to the events and you can more easily modularize your project.
 
-<img src="https://imgur.com/a/Y5b7x" alt="EventBinderBheaviour"/>
 
+![EventBinderBehaviour](https://imgur.com/a/Y5b7x)
 
 3. The listener class - In the sample **EventBinderSampleListenerController**
 	* Add a listener to any event from the class as written below:
