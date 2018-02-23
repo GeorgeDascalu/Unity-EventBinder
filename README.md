@@ -63,7 +63,7 @@ There are 3 main components for the EventBinder plugin
 			Combine this with the ability of adding limitless listeners to the events and you can more easily modularize your project.
 
 
-![EventBinderBehaviour](https://i.imgur.com/9319VQb.png)
+![EventBinderBehaviour](https://i.imgur.com/uzQnLFj.png)
 
 3. The listener class - In the sample **EventBinderSampleListenerController**
 	* Add a listener to any event from the class as written below:
