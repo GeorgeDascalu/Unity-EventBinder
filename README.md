@@ -33,7 +33,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 
 You can install Unity-EventBinder using the following method:
 
-From [Releases Page](https://github.com/GeorgeDascalu/Unity-EventBinder-Asset). Here you can choose between the following:
+1. From [Github Page](https://github.com/GeorgeDascalu/Unity-EventBinder-Asset). Here you can choose between the following:
 
-    * Unity Package: /Unity Asset/ **EventBinder [date] - [build]**- Including a sample scene
+    * Unity Package: /Unity Asset/ **EventBinder[date]-[build].unitypackage** - Including a sample scene
     * Source Code: /Source Code/Assets..
