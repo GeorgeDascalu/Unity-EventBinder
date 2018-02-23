@@ -89,7 +89,7 @@ There are 3 main components for the EventBinder plugin
 
     The MIT License (MIT)
 
-    Copyright (c) 2010-2015 Modest Tree Media  http://www.modesttree.com
+    Copyright (c) 2018 George Dascalu
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
