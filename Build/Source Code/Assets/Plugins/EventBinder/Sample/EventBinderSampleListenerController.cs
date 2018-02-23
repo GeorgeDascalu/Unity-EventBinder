@@ -3,39 +3,43 @@ using UnityEngine;
 
 public class EventBinderSampleListenerController : MonoBehaviour {
 
+    
+    
 	// Use this for initialization
     private void Start ()
     {
-        TriggersCollection.testAction += OnTestActionHandler;
-	    TriggersCollection.testActionWithStringParam += OnTestActionWithStringParamHandler;
-	    TriggersCollection.actionWithNumbersArgs += OnTestActionWithNumberArgsHandler;
-	    TriggersCollection.actionWithVectorsArgs += OnTestActionWithVectorsARgsHandler;
-	    TriggersCollection.actionWithGoArgs += OnTestActionWithGoArgsHandler;
+        EventsCollection.eventEmpty           += OnEventEmptyHandler;
+	    EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
+	    EventsCollection.eventWithNumbersArgs += OnEventWithNumberArgsHandler;
+	    EventsCollection.eventWithVectorsArgs += OnEventWithVectorsARgsHandler;
+	    EventsCollection.eventWithGoArgs      += OnEventWithGoArgsHandler;
 	}
     
-    /**HANDLERS*/
-
-    public void OnTestActionHandler()
+    
+    
+    
+    /**EVENT HANDLERS*/
+    public void OnEventEmptyHandler()
     {
         Debug.Log ("We got a new message ");
     }
     
-    public void OnTestActionWithStringParamHandler(string value)
+    public void OnEventWithStringArgsHandler(string value)
     {
         Debug.Log ("We got a new message with a String parameter: " + value);
     }
     
-    public void OnTestActionWithNumberArgsHandler(int intValue, float floatValue, double doubleValue)
+    public void OnEventWithNumberArgsHandler(int intValue, float floatValue, double doubleValue)
     {
         Debug.Log ("We got a new message with Number type parameters: " + intValue + " | " + doubleValue);
     }
     
-    public void OnTestActionWithVectorsARgsHandler(Vector2 v2Value, Vector3 v3Value, Vector4 v4Value)
+    public void OnEventWithVectorsARgsHandler(Vector2 v2Value, Vector3 v3Value, Vector4 v4Value)
     {
         Debug.Log ("We got a new message with Vector type parameters: " + v2Value + " | " + v3Value + " | " + v4Value);
     }
     
-    public void OnTestActionWithGoArgsHandler(GameObject gameObjectValue, Component componentValue)
+    public void OnEventWithGoArgsHandler(GameObject gameObjectValue, Component componentValue)
     {
         Debug.Log ("We got a new message with a GameObject and a Component parameter: " + gameObjectValue + " | " + componentValue);
     }

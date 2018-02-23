@@ -1,12 +1,7 @@
-﻿using System;
-using System.Runtime.Serialization;
-using UnityEngine;
-using UnityEngine.EventSystems;
-
-namespace EventBinder
+﻿namespace EventBinder
 {
 
-    public enum EventTriggerArgumentType
+    public enum EventArgumentType
     {
         String, 
         
@@ -25,7 +20,7 @@ namespace EventBinder
     }
 
 
-    public enum EventTriggerArgumentKind
+    public enum EventArgumentKind
     {
         Static = 0,
         Dynamic = 1
