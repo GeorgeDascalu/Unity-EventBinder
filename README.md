@@ -72,13 +72,13 @@ There are 3 main components for the EventBinder plugin
 	{
 	    private void Start ()
 	    {
-		    EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
-		}
+	  	EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
+	    }
 	    
 
 	    public void OnEventWithStringArgsHandler(string value)
 	    {
-	        Debug.Log ("We got a new message with a String parameter: " + value);
+	    	Debug.Log ("We got a new message with a String parameter: " + value);
 	    }	
 	}
 	```
