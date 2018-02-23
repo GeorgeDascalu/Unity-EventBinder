@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Events;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+
+#if UNITY_EDITOR 
+using UnityEditor.Events; 
+#endif
 
 namespace EventBinder
 {
@@ -72,7 +76,25 @@ namespace EventBinder
             get { return GetComponent<EventTrigger>().triggers; }
         }
         
-        /**METHODS*/ 
+        
+        
+        /**METHODS*/
+
+        private void Start()
+        {
+            RefreshTargetDelegate();
+            
+            Debug.Log ("Target Delegate Name: " + targetDelegate.GetType());
+        }
+
+
+        private void RefreshTargetDelegate()
+        {
+            FieldInfo[] fieldsCollection = typeof(TriggersCollection).GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            targetDelegate = fieldsCollection[actionIndex].GetValue (null) as Delegate;
+        }
+        
+#if UNITY_EDITOR
         public void RefreshUnityEventBase()
         {
             if(selectedUnityEventBase is UnityEvent)
@@ -81,8 +103,6 @@ namespace EventBinder
                 UnityEventTools.AddPersistentListener ((UnityEvent) selectedUnityEventBase, EventTriggerHandler);
             }
         }
-        
-        
         
         public void RefreshEventTriggerList ()
         {
@@ -103,7 +123,7 @@ namespace EventBinder
         }
 
         public void ClearEventTrigger()
-        {
+        { 
             if (eventEntry == null) return;
             
             //REMOVING OLD LISTENERS
@@ -132,10 +152,14 @@ namespace EventBinder
                 i--;
             } 
         }
+        
+#endif
 
 
         private void DispatchAction()
         {
+            Debug.Log ("Dispatch Action");
+            
             object[] argumentsObjectsList = new object[argumentTypes.Length];
             for (var index = 0; index < argumentTypes.Length; index++)
             {
@@ -166,10 +190,10 @@ namespace EventBinder
                             argumentsObjectsList[index] = argsComponents[index].GetType().GetProperty (argsTargetsProperties[index]).GetValue(argsComponents[index], null);
                         break;
                 }
-
-                
-               
             }
+            
+            Debug.Log ("Target delegate: " + targetDelegate);
+            Debug.Log ("Arguments Objects List: " + argumentsObjectsList.Length);
 
             targetDelegate.DynamicInvoke(argumentsObjectsList);
         }

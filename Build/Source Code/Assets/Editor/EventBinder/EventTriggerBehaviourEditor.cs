@@ -21,6 +21,10 @@ namespace EventBinder
         
         public override void OnInspectorGUI()
         {
+            if (Application.isPlaying) return;
+            
+            Debug.Log ("ON INSPECTOR GUI");
+            
             Undo.RecordObject(target, "EventTriggerBehaviour");
             
             EventTriggerBehaviour behaviour = target as EventTriggerBehaviour;
@@ -116,7 +120,6 @@ namespace EventBinder
             behaviour.targetDelegate = actionsList[behaviour.actionIndex];
              
             CreateArgumentsLists (behaviour);
-            
             
             if(behaviour.targetDelegate != null)
             {
