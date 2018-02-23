@@ -37,3 +37,77 @@ You can install Unity-EventBinder using the following method:
 
     * Unity Package: /Unity Asset/ **EventBinder[date]-[build].unitypackage** - Including a sample scene
     * Source Code: /Source Code/Assets..
+
+
+
+
+## <a id="usage"></a>Usage
+
+There are 3 main components for the EventBinder plugin
+
+1. The **EventsCollection** class
+	* This is a collection with all the events that the plugin will search, display and use throughout the framework.
+	* You can remove the events provided and add new ones as you would add an event normally
+	* The events are **Action** type, they should be **static** & **public**.
+	* It is best (yet optional) to name the arguments in your declaration (eg: **delegate (string testValue)**").
+
+2. The **EventBinderBehaviour** class
+	* Attach this to any GameObject in your scene 
+	* Set the **Target Object** from which the user event should be listened from. Will default to the GameObject attached.
+	* Select the **Event Type** that will be listened
+		* From TargetObject: Will display a list of components and a list of Events for that component
+		Currently it only supports events extending **UnityEvent**, will add support for **UnityEvent<T0,T1,T2..>** in future releases.
+		* EventTrigger Type: Will listen to any event supported by the **EventTrigger** component (PointerDown, PointerEnter, PointerClick...etc) 
+	* Select the **Event Delegate**
+		* This will be an event from the **EventsCollection** class
+		* If the event has arguments you will need to populate the arguments with values
+			* **Static** - A static, hard-coded value written in the Inspector
+			* **Dynamic** - The value will be retrieved at runtime from the specified component. For example: the **text** property of a **InputField**  or the rotation of an object, or the position of an object..etc
+			Combine this with the ability of adding limitless listeners to the events and you more easily modularize your project.
+
+<img src="https://imgur.com/a/Y5b7x" alt="EventBinderBheaviour"/>
+
+
+3. The listener class - In the sample **EventBinderSampleListenerController**
+	* Add a listener to any event from the class as written below:
+	```csharp
+	public class EventBinderSampleListenerController : MonoBehaviour
+	{
+	    private void Start ()
+	    {
+		    EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
+		}
+	    
+
+	    public void OnEventWithStringArgsHandler(string value)
+	    {
+	        Debug.Log ("We got a new message with a String parameter: " + value);
+	    }	
+	}
+	```
+
+
+
+## <a id="license"></a>License
+
+    The MIT License (MIT)
+
+    Copyright (c) 2010-2015 Modest Tree Media  http://www.modesttree.com
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
