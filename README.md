@@ -63,7 +63,7 @@ There are 3 main components for the EventBinder plugin
 			Combine this with the ability of adding limitless listeners to the events and you can more easily modularize your project.
 
 
-![EventBinderBehaviour](https://imgur.com/a/Y5b7x)
+![EventBinderBehaviour](https://i.imgur.com/uzQnLFj.png)
 
 3. The listener class - In the sample **EventBinderSampleListenerController**
 	* Add a listener to any event from the class as written below:
@@ -72,13 +72,13 @@ There are 3 main components for the EventBinder plugin
 	{
 	    private void Start ()
 	    {
-		    EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
-		}
+	  	EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
+	    }
 	    
 
 	    public void OnEventWithStringArgsHandler(string value)
 	    {
-	        Debug.Log ("We got a new message with a String parameter: " + value);
+	    	Debug.Log ("We got a new message with a String parameter: " + value);
 	    }	
 	}
 	```
@@ -89,7 +89,7 @@ There are 3 main components for the EventBinder plugin
 
     The MIT License (MIT)
 
-    Copyright (c) 2010-2015 Modest Tree Media  http://www.modesttree.com
+    Copyright (c) 2018 George Dascalu
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
