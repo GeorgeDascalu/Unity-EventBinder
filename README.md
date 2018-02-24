@@ -20,6 +20,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 	* Separates the event "triggers" from the event "listeners"
 	* Uses specific Actions to connect the triggers to the listeners
 * Multiple listeners for an UI event
+* Ability to add static event handlers for events - something that you cannot do with default Unity events
 * Ability to select Events
 	* From "EventTriggerType": PointerDown, PointerUp, PointerClick...etc
 	* From a specific GameObject (ex: onClick from Button)
@@ -70,15 +71,37 @@ There are 3 main components for the EventBinder plugin
 	```csharp
 	public class EventBinderSampleListenerController : MonoBehaviour
 	{
+	    /**LIFECYCLE*/
 	    private void Start ()
 	    {
-	  	EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
+	  	AddListeners();
+		AddListenersStatic();
 	    }
 	    
-
+	    
+	    /**EVENT REGISTRATION*/
+	    private void AddListeners()
+	    {
+	   	 EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
+	    }
+	    
+	    private static void AddListenersStatic()
+	    {
+	  	  EventsCollection.eventWithStringArgs  += OnStaticEventWithStringArgsHandler;
+	    }
+	    
+	    
+	    
+	    /**EVENT HANDLERS*/
 	    public void OnEventWithStringArgsHandler(string value)
 	    {
 	    	Debug.Log ("We got a new message with a String parameter: " + value);
+	    }	
+	    
+	    
+	    public void OnStaticEventWithStringArgsHandler(string value)
+	    {
+	    	Debug.Log ("[STATIC] We got a new message with a String parameter: " + value);
 	    }	
 	}
 	```
