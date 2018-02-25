@@ -165,8 +165,9 @@ namespace EventBinder
                         }
                         break;
                     case (int) EventArgumentKind.Dynamic:
-                        if(argsGameObjectTarget != null)
-                            argumentsObjectsList[index] = argsComponents[index].GetType().GetProperty (argsTargetsProperties[index]).GetValue(argsComponents[index], null);
+                        if (argsGameObjectTarget != null && argsComponents[index] != null && !string.IsNullOrEmpty (argsTargetsProperties[index]))
+                            argumentsObjectsList[index] = argsComponents[index].GetType().GetProperty (argsTargetsProperties[index]).GetValue (argsComponents[index], null);
+
                         break;
                 }
             }

@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace EventBinder
 {
@@ -294,7 +290,7 @@ namespace EventBinder
             }
                             
             behaviour.argsComponentIndexes[index] = EditorGUILayout.Popup ("Component", behaviour.argsComponentIndexes[index], componentNames.ToArray());
-
+            behaviour.argsTargetsProperties[index] = null;
             if (behaviour.argsComponentIndexes[index] != -1 && componentsList.Count > behaviour.argsComponentIndexes[index])
             {
                 behaviour.argsComponents[index] = componentsList.ElementAt (behaviour.argsComponentIndexes[index]);
