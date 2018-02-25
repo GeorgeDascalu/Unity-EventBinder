@@ -5,7 +5,6 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-
 #if UNITY_EDITOR 
 using UnityEditor.Events; 
 #endif
@@ -25,19 +24,15 @@ namespace EventBinder
         [HideInInspector] public int eventIndex  = 0; 
         [HideInInspector] public int actionIndex = 0; 
         [HideInInspector] public EventTriggerType eventTriggerType;
-        [HideInInspector] public UnityEventBase unityEventBase;
         [HideInInspector] public Delegate targetDelegate;
 
         [HideInInspector] public int eventComponentIndex;
-        [HideInInspector] public Component eventComponent;
         
         [HideInInspector] public int eventPropertyIndex;
-        [HideInInspector] public string eventProperty;
 
         [HideInInspector] public UnityEventBase selectedUnityEventBase;
         [HideInInspector] public EventTriggerType selectedEventTriggerType;
         [HideInInspector] public EventTrigger.Entry eventEntry = null;
-
 
         /**ARGUMENTS*/
         [HideInInspector] public GameObject argsGameObjectTarget;
@@ -53,16 +48,6 @@ namespace EventBinder
         //STRING TYPE ARGUMENTS
         [HideInInspector] public string[] stringArgs;
         
-        //NUMBER TYPE ARGUMENTS
-        [HideInInspector] public int[] intArgs;
-        [HideInInspector] public float[] floatArgs; 
-        [HideInInspector] public double[] doubleArgs;
-        
-        //VECTOR TYPE ARGUMENTS
-        [HideInInspector] public Vector2[] vector2Args;
-        [HideInInspector] public Vector3[] vector3Args;
-        [HideInInspector] public Vector4[] vector4Args;
-        
         //GAME OBJECT TYPE ARGUMENTS
         [HideInInspector] public GameObject[] gameObjectArgs;
         [HideInInspector] public Component[] componentArgs;
@@ -77,7 +62,6 @@ namespace EventBinder
         }
         
         
-        
         /**METHODS*/
 
         private void Start()
@@ -85,14 +69,13 @@ namespace EventBinder
             RefreshTargetDelegate();
         }
 
-
+#if UNITY_EDITOR
         private void RefreshTargetDelegate()
         {
             FieldInfo[] fieldsCollection = typeof(EventsCollection).GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             targetDelegate = fieldsCollection[actionIndex].GetValue (null) as Delegate;
         }
         
-#if UNITY_EDITOR
         public void RefreshUnityEventBase()
         {
             if(selectedUnityEventBase is UnityEvent)
@@ -166,13 +149,13 @@ namespace EventBinder
                         {
                             case EventArgumentType.String: argumentsObjectsList[index] = stringArgs[index];break;
                     
-                            case EventArgumentType.Int:    argumentsObjectsList[index] = intArgs[index];    break;
-                            case EventArgumentType.Float:  argumentsObjectsList[index] = floatArgs[index];  break;
-                            case EventArgumentType.Double: argumentsObjectsList[index] = doubleArgs[index]; break;
+                            case EventArgumentType.Int:    argumentsObjectsList[index] = stringArgs[index].ParseToInt();    break;
+                            case EventArgumentType.Float:  argumentsObjectsList[index] = stringArgs[index].ParseToFloat();  break;
+                            case EventArgumentType.Double: argumentsObjectsList[index] = stringArgs[index].ParseToDouble(); break;
                     
-                            case EventArgumentType.Vector2: argumentsObjectsList[index] = vector2Args[index]; break;
-                            case EventArgumentType.Vector3: argumentsObjectsList[index] = vector3Args[index]; break;
-                            case EventArgumentType.Vector4: argumentsObjectsList[index] = vector4Args[index]; break;
+                            case EventArgumentType.Vector2: argumentsObjectsList[index] = stringArgs[index].DeserializeToVector2(); break;
+                            case EventArgumentType.Vector3: argumentsObjectsList[index] = stringArgs[index].DeserializeToVector3(); break;
+                            case EventArgumentType.Vector4: argumentsObjectsList[index] = stringArgs[index].DeserializeToVector4(); break;
                     
                             case EventArgumentType.GameObject: argumentsObjectsList[index] = gameObjectArgs[index]; break;
                             case EventArgumentType.Component:  argumentsObjectsList[index] = componentArgs[index];  break;

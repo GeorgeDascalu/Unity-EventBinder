@@ -42,7 +42,7 @@ public class EventBinderSampleListenerController : MonoBehaviour {
     
     public void OnEventWithNumberArgsHandler(int intValue, float floatValue, double doubleValue)
     {
-        Debug.Log ("We got a new message with Number type parameters: " + intValue + " | " + doubleValue);
+        Debug.Log ("We got a new message with Number type parameters: " + intValue + " | " + floatValue + " | " + doubleValue);
     }
     
     public void OnEventWithVectorsARgsHandler(Vector2 v2Value, Vector3 v3Value, Vector4 v4Value)
@@ -68,7 +68,7 @@ public class EventBinderSampleListenerController : MonoBehaviour {
     
     public static void OnStaticEventWithNumberArgsHandler(int intValue, float floatValue, double doubleValue)
     {
-        Debug.Log ("[STATIC] We got a new message with Number type parameters: " + intValue + " | " + doubleValue);
+        Debug.Log ("[STATIC] We got a new message with Number type parameters: " + intValue + " | " + floatValue + " | " + doubleValue);
     }
     
     public static void OnStaticEventWithVectorsARgsHandler(Vector2 v2Value, Vector3 v3Value, Vector4 v4Value)
