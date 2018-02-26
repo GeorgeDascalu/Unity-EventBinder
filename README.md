@@ -23,7 +23,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Ability to add static event handlers for events - something that you cannot do with default Unity events
 * Ability to select Events
 	* From "EventTriggerType": PointerDown, PointerUp, PointerClick...etc
-	* From a specific GameObject (ex: onClick from Button)
+	* From a specific GameObject (ex: **onClick** from **Button**, or **onValueChanged** from **InputField**)
 * Ability to add custom arguments including: "String", "int", "float", "double", "Vector2", "Vector3", "Vector4", "GameObject", "Component", "Color". More argument types will come in the future.
 * Ability to select a dynamic argument
 	* Example: select the "text" property of a "InputField" component
@@ -48,6 +48,10 @@ There are 3 main components for the EventBinder plugin
 	* You can remove the events provided and add new ones as you would add an event normally
 	* The events are **Action** type, they should be **static** & **public**.
 	* It is best (yet optional) to name the arguments in your declaration (eg: **delegate (string testValue)**").
+	```csharp
+	public static event Action<string> EventWithStringArgument = delegate (string stringArgument) {};
+	```
+	
 
 2. The **EventBinderBehaviour** class
 	* Attach this to any GameObject in your scene 
