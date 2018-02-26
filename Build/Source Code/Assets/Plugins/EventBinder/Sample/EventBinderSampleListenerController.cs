@@ -15,6 +15,7 @@ public class EventBinderSampleListenerController : MonoBehaviour {
     {
         EventsCollection.eventEmpty           += OnEventEmptyHandler;
         EventsCollection.eventWithStringArgs  += OnEventWithStringArgsHandler;
+        EventsCollection.eventWithBoolArgs    += OnEventWithBoolArgsHandler;
         EventsCollection.eventWithNumbersArgs += OnEventWithNumberArgsHandler;
         EventsCollection.eventWithVectorsArgs += OnEventWithVectorsARgsHandler;
         EventsCollection.eventWithGoArgs      += OnEventWithGoArgsHandler;
@@ -24,6 +25,7 @@ public class EventBinderSampleListenerController : MonoBehaviour {
     {
         EventsCollection.eventEmpty           += OnStaticEventEmptyHandler;
         EventsCollection.eventWithStringArgs  += OnStaticEventWithStringArgsHandler;
+        EventsCollection.eventWithBoolArgs    += OnStaticEventWithBoolArgsHandler;
         EventsCollection.eventWithNumbersArgs += OnStaticEventWithNumberArgsHandler;
         EventsCollection.eventWithVectorsArgs += OnStaticEventWithVectorsARgsHandler;
         EventsCollection.eventWithGoArgs      += OnStaticEventWithGoArgsHandler;
@@ -40,6 +42,11 @@ public class EventBinderSampleListenerController : MonoBehaviour {
         Debug.Log ("We got a new message with a String parameter: " + value);
     }
     
+    public void OnEventWithBoolArgsHandler(bool boolValue1, bool boolValue2)
+    {
+        Debug.Log ("We got a new message with Boolean type parameters: " + boolValue1 + " | " + boolValue2);
+    }
+
     public void OnEventWithNumberArgsHandler(int intValue, float floatValue, double doubleValue)
     {
         Debug.Log ("We got a new message with Number type parameters: " + intValue + " | " + floatValue + " | " + doubleValue);
@@ -64,6 +71,11 @@ public class EventBinderSampleListenerController : MonoBehaviour {
     public static void OnStaticEventWithStringArgsHandler(string value)
     {
         Debug.Log ("[STATIC] We got a new message with a String parameter: " + value);
+    }
+    
+    public static void OnStaticEventWithBoolArgsHandler(bool boolValue1, bool boolValue2)
+    {
+        Debug.Log ("[STATIC] We got a new message with Boolean type parameters: " + boolValue1 + " | " + boolValue2);
     }
     
     public static void OnStaticEventWithNumberArgsHandler(int intValue, float floatValue, double doubleValue)

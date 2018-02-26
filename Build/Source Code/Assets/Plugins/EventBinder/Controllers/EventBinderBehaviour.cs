@@ -147,8 +147,10 @@ namespace EventBinder
                     case (int)EventArgumentKind.Static:
                         switch (argumentTypes[index])
                         {
-                            case EventArgumentType.String: argumentsObjectsList[index] = stringArgs[index];break;
+                            case EventArgumentType.String: argumentsObjectsList[index] = stringArgs[index]; break;
                     
+                            case EventArgumentType.Boolean: argumentsObjectsList[index] = Convert.ToBoolean(stringArgs[index]); break;
+                            
                             case EventArgumentType.Int:    argumentsObjectsList[index] = stringArgs[index].ParseToInt();    break;
                             case EventArgumentType.Float:  argumentsObjectsList[index] = stringArgs[index].ParseToFloat();  break;
                             case EventArgumentType.Double: argumentsObjectsList[index] = stringArgs[index].ParseToDouble(); break;

@@ -60,10 +60,8 @@ namespace EventBinder
 
                     foreach (PropertyInfo propertyInfo in eventComponent.GetType().GetProperties (BindingFlags.Instance | BindingFlags.Public))
                     {
-                        if (propertyInfo.PropertyType.BaseType == typeof(UnityEvent))
-                            propertiesNames.Add (propertyInfo.Name);
+                        if (propertyInfo.PropertyType.BaseType == typeof(UnityEvent)) propertiesNames.Add (propertyInfo.Name);
                     }
-
 
                     if (propertiesNames.Count == 0)
                     {
@@ -89,11 +87,8 @@ namespace EventBinder
 
                 if (!Application.isPlaying) behaviour.RefreshEventTriggerList();
                 
-//                EditorGUILayout.Space();
-                behaviour.eventIndex  = EditorGUILayout.Popup ("Event Trigger", behaviour.eventIndex, Enum.GetNames (typeof(EventTriggerType)));
-                
+                behaviour.eventIndex = EditorGUILayout.Popup ("Event Trigger", behaviour.eventIndex, Enum.GetNames (typeof(EventTriggerType)));
             }
-
 
             if (!eventsFound)
             {
@@ -109,8 +104,7 @@ namespace EventBinder
                 actionsNamesList.Add (fieldInfo.Name);
             }
             
-            EditorGUILayout.Space();
-            EditorGUILayout.Space();
+            EditorGUILayout.Space(); EditorGUILayout.Space();
             
             behaviour.actionIndex = EditorGUILayout.Popup ("Event Delegate", behaviour.actionIndex, actionsNamesList.ToArray());
             behaviour.targetDelegate = actionsList[behaviour.actionIndex];
@@ -121,9 +115,7 @@ namespace EventBinder
             {
                 if (behaviour.targetDelegate.Method.GetParameters().Length > 0)
                 {
-                    EditorGUILayout.Space();
-//                    EditorGUILayout.LabelField ("Arguments");
-                    EditorGUILayout.Space();
+                    EditorGUILayout.Space(); EditorGUILayout.Space();
                 }
                 
                 
@@ -138,15 +130,32 @@ namespace EventBinder
                     
                     behaviour.argsChoiceIndexList[index] = EditorGUILayout.Popup ("Argument type", behaviour.argsChoiceIndexList[index], Enum.GetNames (typeof(EventArgumentKind)));
                 
+                    
                     /**STRING TYPE ARGUMENTS*/
-                
+                    
                     //STRING
                     if (parameterInfo.ParameterType == typeof(string))
                     {
-                        if (behaviour.argsChoiceIndexList[index] == 0) behaviour.stringArgs[index] = EditorGUILayout.TextField ("Value", behaviour.stringArgs[index]);
+                        if (behaviour.argsChoiceIndexList[index] == 0) 
+                            behaviour.stringArgs[index] = EditorGUILayout.TextField ("Value", behaviour.stringArgs[index]);
                         else SetupDynamicArgument (behaviour, index, typeof(string));
                     
                         behaviour.argumentTypes[index] = EventArgumentType.String;
+                    }
+                    
+                    /**SYSTEM TYPE ARGUMENTS*/
+                    
+                    //BOOLEAN
+                    if (parameterInfo.ParameterType == typeof(bool))
+                    {
+                        if (behaviour.argsChoiceIndexList[index] == 0)
+                        {
+                            if (string.IsNullOrEmpty(behaviour.stringArgs[index])) behaviour.stringArgs[index] = "false";
+                            behaviour.stringArgs[index] = EditorGUILayout.Toggle ("Value", Convert.ToBoolean (behaviour.stringArgs[index])).ToString();
+                        }
+                        else SetupDynamicArgument (behaviour, index, typeof(bool));
+                    
+                        behaviour.argumentTypes[index] = EventArgumentType.Boolean;
                     }
                 
                     /**NUMBER TYPE ARGUMENTS*/
@@ -263,8 +272,7 @@ namespace EventBinder
                         behaviour.argumentTypes[index] = EventArgumentType.Color;
                     }
                 
-                
-                    EditorGUILayout.Space();
+                    EditorGUILayout.Space(); EditorGUILayout.Space();
                 }
                 
             }
@@ -291,6 +299,7 @@ namespace EventBinder
                             
             behaviour.argsComponentIndexes[index] = EditorGUILayout.Popup ("Component", behaviour.argsComponentIndexes[index], componentNames.ToArray());
             behaviour.argsTargetsProperties[index] = null;
+            
             if (behaviour.argsComponentIndexes[index] != -1 && componentsList.Count > behaviour.argsComponentIndexes[index])
             {
                 behaviour.argsComponents[index] = componentsList.ElementAt (behaviour.argsComponentIndexes[index]);
@@ -298,10 +307,17 @@ namespace EventBinder
                 foreach (PropertyInfo propertyInfo in behaviour.argsComponents[index].GetType().GetProperties (BindingFlags.Instance | BindingFlags.Public))
                     if(propertyInfo.PropertyType == argumentType) propertiesNames.Add (propertyInfo.Name);
 
-                behaviour.argsTargetsPropertiesIndexes[index] = EditorGUILayout.Popup ("Property", behaviour.argsTargetsPropertiesIndexes[index], propertiesNames.ToArray());
-                    
-                if(behaviour.argsTargetsPropertiesIndexes[index] != -1 && propertiesNames.Count > behaviour.argsTargetsPropertiesIndexes[index])
-                    behaviour.argsTargetsProperties[index] = propertiesNames.ElementAt (behaviour.argsTargetsPropertiesIndexes[index]);
+                if (propertiesNames.Count == 0)
+                {
+                    EditorGUILayout.LabelField ("No properties of type [" +  argumentType + "] found", EditorStyles.label);
+                }
+                else
+                {
+                    behaviour.argsTargetsPropertiesIndexes[index] = EditorGUILayout.Popup ("Property", behaviour.argsTargetsPropertiesIndexes[index], propertiesNames.ToArray());
+
+                    if (behaviour.argsTargetsPropertiesIndexes[index] != -1 && propertiesNames.Count > behaviour.argsTargetsPropertiesIndexes[index])
+                        behaviour.argsTargetsProperties[index] = propertiesNames.ElementAt (behaviour.argsTargetsPropertiesIndexes[index]);
+                }
             }
         }
         

@@ -3,7 +3,9 @@
 
     public enum EventArgumentType
     {
-        String, 
+        String,
+        
+        Boolean,
         
         Int,
         Float,
