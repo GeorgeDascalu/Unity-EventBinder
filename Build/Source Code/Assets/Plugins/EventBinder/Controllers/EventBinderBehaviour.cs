@@ -22,9 +22,9 @@ namespace EventBinder
         [HideInInspector] public int eventTypeIndex = 0;
         
         [HideInInspector] public int eventIndex  = 0; 
-        [HideInInspector] public int actionIndex = 0; 
+        [HideInInspector] public int delegateIndex = 0; 
         [HideInInspector] public EventTriggerType eventTriggerType;
-        [HideInInspector] public Delegate targetDelegate;
+        [HideInInspector] public Delegate targetDelegate; // The delegate that will be called after an UI event is proccessed
 
         [HideInInspector] public int eventComponentIndex;
         
@@ -45,10 +45,12 @@ namespace EventBinder
         
         [HideInInspector] public int[] argsChoiceIndexList;
         
-        //STRING TYPE ARGUMENTS
+        // STRING TYPE ARGUMENTS
+        // All the arguments that were parsed to String
         [HideInInspector] public string[] stringArgs;
         
         //GAME OBJECT TYPE ARGUMENTS
+        // GameObject arguments that couldn't be serialized to String
         [HideInInspector] public GameObject[] gameObjectArgs;
         [HideInInspector] public Component[] componentArgs;
         
@@ -56,6 +58,7 @@ namespace EventBinder
         [HideInInspector] public Color[] colorArgs;
         
 
+        // Quick accessor to get The EventTrigger Component
         public List<EventTrigger.Entry> triggers
         {
             get { return GetComponent<EventTrigger>().triggers; }
@@ -70,10 +73,12 @@ namespace EventBinder
         }
 
 #if UNITY_EDITOR
+        
+        // Sets the Taret delegate using the "actionIndex" property
         private void RefreshTargetDelegate()
         {
             FieldInfo[] fieldsCollection = typeof(EventsCollection).GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            targetDelegate = fieldsCollection[actionIndex].GetValue (null) as Delegate;
+            targetDelegate = fieldsCollection[delegateIndex].GetValue (null) as Delegate;
         }
         
         public void RefreshUnityEventBase()
@@ -103,6 +108,7 @@ namespace EventBinder
             UnityEventTools.AddPersistentListener (eventEntry.callback, EventTriggerHandler);
         }
 
+        //Removes any event attached to the EventTrigger with connection to this object
         public void ClearEventTrigger()
         { 
             if (eventEntry == null) return;
@@ -124,6 +130,7 @@ namespace EventBinder
                         indexToRemove = i;
                 }    
                 
+                // IF AN EVENT WAS FOUND OR THE ENTRY LIST IS EMPTY -> REMOVE THE ENTRY 
                 if (loopEntry.eventID == eventEntry.eventID && loopEntry.callback.GetPersistentEventCount() == 0)
                     indexToRemove = i;
 
@@ -136,9 +143,10 @@ namespace EventBinder
         
 #endif
 
-
+        /*Dispatch the action with the selected arguments*/
         private void DispatchAction()
         {
+            ParameterInfo[] parametersList = targetDelegate.Method.GetParameters();
             object[] argumentsObjectsList = new object[argumentTypes.Length];
             for (var index = 0; index < argumentTypes.Length; index++)
             {
@@ -163,6 +171,8 @@ namespace EventBinder
                             case EventArgumentType.Component:  argumentsObjectsList[index] = componentArgs[index];  break;
                     
                             case EventArgumentType.Color: argumentsObjectsList[index] = colorArgs[index]; break;
+                            
+                            case EventArgumentType.Enum: argumentsObjectsList[index] = Enum.Parse(parametersList[index].ParameterType, stringArgs[index]); break;
                             default: throw new ArgumentOutOfRangeException();
                         }
                         break;

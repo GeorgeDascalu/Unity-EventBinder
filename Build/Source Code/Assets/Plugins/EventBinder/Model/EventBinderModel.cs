@@ -18,7 +18,9 @@
         GameObject,
         Component,
         
-        Color
+        Color,
+        
+        Enum
     }
 
 

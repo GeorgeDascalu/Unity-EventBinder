@@ -75,6 +75,18 @@ namespace EventBinder
             return result;
         }
         
+        /**ARRAY*/
+        public static int IndexOf(this Array target, object value)
+        {
+            int index = -1;
+
+            for (int i = 0; i < target.Length; i++)
+            {
+                if (target.GetValue (i) == value) return i;
+            }
+            
+            return index;
+        }
         
         
         /**VECTOR 2*/

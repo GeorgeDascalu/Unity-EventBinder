@@ -18,6 +18,7 @@ namespace EventBinder
         private readonly List<Delegate> actionsList = new List<Delegate>();
         private readonly List<string> actionsNamesList = new List<string>();
         
+        // Called everytime the Component is in focus 
         public override void OnInspectorGUI()
         {
             if (Application.isPlaying) return;
@@ -30,13 +31,18 @@ namespace EventBinder
             
             EditorGUILayout.Space();
             
-            //Setup Target GameObject
-            if (behaviour != null && behaviour.targetObject == null) behaviour.targetObject = behaviour.gameObject;
+            // Check if behaviour is null & Setup Target GameObject
+            if (behaviour != null && behaviour.targetObject == null) 
+                behaviour.targetObject = behaviour.gameObject;
             
+            // Set the EventTypeIndex , Between: "From Target Object" & "EventTrigger"
+            // 1. From Target Object - gets an UI Event from every component of the object (eg: onClick event from Button)
+            // 2. EventTrigger - displays and listens to any event from the EventTriggerType class
             behaviour.eventTypeIndex = EditorGUILayout.Popup ("Event Type", behaviour.eventTypeIndex, new []{"From Target Object - UnityEvent", "EventTrigger Type"});
                 
             bool eventsFound = true;
 
+            // If "From Target Object" is selected
             if (behaviour.eventTypeIndex == 0)
             {
                 behaviour.ClearEventTrigger();
@@ -58,29 +64,34 @@ namespace EventBinder
                 {
                     Component eventComponent = componentsList.ElementAt (behaviour.eventComponentIndex);
 
+                    // Iterate through all Properties of the selected component
                     foreach (PropertyInfo propertyInfo in eventComponent.GetType().GetProperties (BindingFlags.Instance | BindingFlags.Public))
                     {
+                        // If the property is an UnityEvent -> Add the name to the "propertiesNames" list
                         if (propertyInfo.PropertyType.BaseType == typeof(UnityEvent)) propertiesNames.Add (propertyInfo.Name);
                     }
 
+                    // If the "propertiesNames" list is Empty -> tell the user that no events have been found
                     if (propertiesNames.Count == 0)
                     {
                         eventsFound = false;
                         EditorGUILayout.LabelField ("No Events found");
                     }
+                    // If at least one event has been found
                     else
                     {
+                        // Display a Popup Dropdown with the events found for the user to select    
                         behaviour.eventPropertyIndex = EditorGUILayout.Popup ("Event Property", behaviour.eventPropertyIndex, propertiesNames.ToArray());
 
                         if (behaviour.eventPropertyIndex != -1 && propertiesNames.Count > behaviour.eventPropertyIndex)
                         {
                             behaviour.selectedUnityEventBase = eventComponent.GetType().GetProperty (propertiesNames.ElementAt (behaviour.eventPropertyIndex)).GetValue (eventComponent, null) as UnityEventBase;
-                        
                             behaviour.RefreshUnityEventBase();
                         }
                     }
                 }
             }
+            // If an event from the "EventTriggerType" class is selected
             else if (behaviour.eventTypeIndex == 1)
             {
                 behaviour.eventTriggerType = (EventTriggerType) behaviour.eventIndex;    
@@ -90,13 +101,16 @@ namespace EventBinder
                 behaviour.eventIndex = EditorGUILayout.Popup ("Event Trigger", behaviour.eventIndex, Enum.GetNames (typeof(EventTriggerType)));
             }
 
+            // If no event is found, Save GUI and Stop
             if (!eventsFound)
             {
                 if (!Application.isPlaying) EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
                 return;
             }
             
-            // Get actions list 
+            // Get actions list
+            // Save the Actions in "actionsList"
+            // Save the Action names in the "actionNamesList"
             FieldInfo[] fieldsCollection = typeof(EventsCollection).GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             foreach (FieldInfo fieldInfo in fieldsCollection)
             {
@@ -104,40 +118,41 @@ namespace EventBinder
                 actionsNamesList.Add (fieldInfo.Name);
             }
             
+            // Adds 2 vertical spaces to the GUI
             EditorGUILayout.Space(); EditorGUILayout.Space();
             
-            behaviour.actionIndex = EditorGUILayout.Popup ("Event Delegate", behaviour.actionIndex, actionsNamesList.ToArray());
-            behaviour.targetDelegate = actionsList[behaviour.actionIndex];
+            // Save the deleateIndex and the targetDelegate to the Behaviour class after the user has made a choice
+            behaviour.delegateIndex = EditorGUILayout.Popup ("Event Delegate", behaviour.delegateIndex, actionsNamesList.ToArray());
+            behaviour.targetDelegate = actionsList[behaviour.delegateIndex];
              
+            // Initializez all List components from the behaviour
             CreateArgumentsLists (behaviour);
             
+            // If TargetDelegate from Behaviour is not null
             if(behaviour.targetDelegate != null)
             {
-                if (behaviour.targetDelegate.Method.GetParameters().Length > 0)
-                {
+                ParameterInfo[] parametersList = behaviour.targetDelegate.Method.GetParameters();
+                
+                // If the selected TargetDelegate has any parameters -> Add 2 spaces to the GUI
+                if (parametersList.Length > 0)
                     EditorGUILayout.Space(); EditorGUILayout.Space();
-                }
                 
-                
-                for (int index = 0; index < behaviour.targetDelegate.Method.GetParameters().Length; index++)
+                // Iterate through all parameters
+                for (int index = 0; index < parametersList.Length; index++)
                 {
-                    ParameterInfo parameterInfo = behaviour.targetDelegate.Method.GetParameters()[index];
+                    ParameterInfo parameterInfo = parametersList[index];
 
                     string textFieldName = parameterInfo.Name;
                     if (textFieldName == "") textFieldName = "Argument " + (index + 1);
 
+                    // Show the NAME and the TYPE of the parameter
                     EditorGUILayout.LabelField (textFieldName + ": " + parameterInfo.ParameterType, EditorStyles.boldLabel);
-                    
+           
                     behaviour.argsChoiceIndexList[index] = EditorGUILayout.Popup ("Argument type", behaviour.argsChoiceIndexList[index], Enum.GetNames (typeof(EventArgumentKind)));
-                
-                    
-                    /**STRING TYPE ARGUMENTS*/
-                    
                     //STRING
                     if (parameterInfo.ParameterType == typeof(string))
                     {
-                        if (behaviour.argsChoiceIndexList[index] == 0) 
-                            behaviour.stringArgs[index] = EditorGUILayout.TextField ("Value", behaviour.stringArgs[index]);
+                        if (behaviour.argsChoiceIndexList[index] == 0) behaviour.stringArgs[index] = EditorGUILayout.TextField ("Value", behaviour.stringArgs[index]);
                         else SetupDynamicArgument (behaviour, index, typeof(string));
                     
                         behaviour.argumentTypes[index] = EventArgumentType.String;
@@ -271,6 +286,21 @@ namespace EventBinder
                     
                         behaviour.argumentTypes[index] = EventArgumentType.Color;
                     }
+                    
+                    //ENUM
+                    else if (parameterInfo.ParameterType.BaseType == typeof(Enum))
+                    {
+                        if (behaviour.argsChoiceIndexList[index] == 0)
+                        {
+                            string[] enumNames = Enum.GetNames (parameterInfo.ParameterType);
+                            int indexPrevSelectedArg = enumNames.IndexOf (behaviour.stringArgs[index]);
+                            if (indexPrevSelectedArg == -1) indexPrevSelectedArg = 0;
+                            behaviour.stringArgs[index] = enumNames.GetValue(EditorGUILayout.Popup ("Value", indexPrevSelectedArg, enumNames)).ToString();
+                        }
+                        else SetupDynamicArgument (behaviour, index, parameterInfo.ParameterType);
+                    
+                        behaviour.argumentTypes[index] = EventArgumentType.Enum;
+                    }
                 
                     EditorGUILayout.Space(); EditorGUILayout.Space();
                 }
@@ -329,8 +359,12 @@ namespace EventBinder
             
             int length = behaviour.targetDelegate.Method.GetParameters().Length;
                 
-            if(behaviour.argumentTypes == null)          behaviour.argumentTypes = new EventArgumentType[length];
-            if(behaviour.argumentTypes.Length != length) behaviour.argumentTypes = new EventArgumentType[length];
+            
+            //todo: Add || ( OR ) for every if - combining them;
+            
+            
+            if(behaviour.argumentTypes == null || behaviour.argumentTypes.Length != length) behaviour.argumentTypes = new EventArgumentType[length];
+//            if() behaviour.argumentTypes = new EventArgumentType[length];
             
             if(behaviour.argsChoiceIndexList == null)          behaviour.argsChoiceIndexList = new int[length];
             if(behaviour.argsChoiceIndexList.Length != length) behaviour.argsChoiceIndexList = new int[length];
@@ -354,7 +388,6 @@ namespace EventBinder
             if(behaviour.stringArgs == null)          behaviour.stringArgs = new string[length];
             if(behaviour.stringArgs.Length != length) behaviour.stringArgs = new string[length];
              
-            
             if(behaviour.gameObjectArgs == null)          behaviour.gameObjectArgs = new GameObject[length];
             if(behaviour.gameObjectArgs.Length != length) behaviour.gameObjectArgs = new GameObject[length];
             

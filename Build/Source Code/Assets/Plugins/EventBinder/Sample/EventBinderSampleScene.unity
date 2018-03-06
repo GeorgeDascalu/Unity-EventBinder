@@ -957,12 +957,10 @@ MonoBehaviour:
   targetObject: {fileID: 1711205323}
   eventTypeIndex: 0
   eventIndex: 4
-  actionIndex: 2
+  delegateIndex: 6
   eventTriggerType: 4
   eventComponentIndex: 3
-  eventComponent: {fileID: 1711205325}
   eventPropertyIndex: 0
-  eventProperty: onClick
   selectedEventTriggerType: 4
   eventEntry:
     eventID: 4
@@ -971,55 +969,22 @@ MonoBehaviour:
         m_Calls: []
       m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
         Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  argsGameObjectTarget: {fileID: 551782211}
+  argsGameObjectTarget: {fileID: 0}
   argsComponents:
-  - {fileID: 551782212}
-  - {fileID: 551782214}
-  - {fileID: 551782213}
-  argsComponentIndexes: 000000000200000003000000
-  argsTargetsPropertiesIndexes: 010000000800000000000000
+  - {fileID: 0}
+  argsComponentIndexes: 00000000
+  argsTargetsPropertiesIndexes: 00000000
   argsTargetsProperties:
-  - hierarchyCapacity
-  - preferredHeight
   - 
-  argumentTypes: 010000000200000003000000
-  argsChoiceIndexList: 010000000100000000000000
+  argumentTypes: 0b000000
+  argsChoiceIndexList: 00000000
   stringArgs:
-  - 
-  - 
-  - 
-  intArgs: 000000000000000000000000
-  floatArgs:
-  - 0
-  - 0
-  - 0
-  doubleArgs:
-  - 0
-  - 0
-  - 0
-  vector2Args:
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  vector3Args:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  vector4Args:
-  - {x: 0, y: 0, z: 0, w: 0}
-  - {x: 0, y: 0, z: 0, w: 0}
-  - {x: 0, y: 0, z: 0, w: 0}
+  - FirstEnum
   gameObjectArgs:
-  - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 0}
   componentArgs:
   - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   colorArgs:
-  - {r: 0, g: 0, b: 0, a: 0}
-  - {r: 0, g: 0, b: 0, a: 0}
   - {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1711205329
 MonoBehaviour:

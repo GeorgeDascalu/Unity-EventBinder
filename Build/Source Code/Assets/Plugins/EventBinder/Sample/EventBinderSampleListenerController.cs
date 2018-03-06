@@ -19,6 +19,7 @@ public class EventBinderSampleListenerController : MonoBehaviour {
         EventsCollection.eventWithNumbersArgs += OnEventWithNumberArgsHandler;
         EventsCollection.eventWithVectorsArgs += OnEventWithVectorsARgsHandler;
         EventsCollection.eventWithGoArgs      += OnEventWithGoArgsHandler;
+        EventsCollection.eventWithEnumsArgs   += OnEventWithEnumsArgsHandler;
     }
 
     private static void AddListenersStatic()
@@ -29,6 +30,7 @@ public class EventBinderSampleListenerController : MonoBehaviour {
         EventsCollection.eventWithNumbersArgs += OnStaticEventWithNumberArgsHandler;
         EventsCollection.eventWithVectorsArgs += OnStaticEventWithVectorsARgsHandler;
         EventsCollection.eventWithGoArgs      += OnStaticEventWithGoArgsHandler;
+        EventsCollection.eventWithEnumsArgs   += OnStaticEventWithEnumsArgsHandler;
     }
     
     /**EVENT HANDLERS*/
@@ -62,6 +64,12 @@ public class EventBinderSampleListenerController : MonoBehaviour {
         Debug.Log ("We got a new message with a GameObject and a Component parameter: " + gameObjectValue + " | " + componentValue);
     }
     
+    public void OnEventWithEnumsArgsHandler(EventEnum value)
+    {
+        Debug.Log ("We got a new message with an EventEnum parameter: " + value);
+    }
+
+    
     /**EVENT HANDLERS STATIC*/
     public static void OnStaticEventEmptyHandler()
     {
@@ -91,5 +99,10 @@ public class EventBinderSampleListenerController : MonoBehaviour {
     public static void OnStaticEventWithGoArgsHandler(GameObject gameObjectValue, Component componentValue)
     {
         Debug.Log ("[STATIC] We got a new message with a GameObject and a Component parameter: " + gameObjectValue + " | " + componentValue);
+    }
+    
+    public static void OnStaticEventWithEnumsArgsHandler(EventEnum value)
+    {
+        Debug.Log ("We got a new message with an EventEnum parameter: " + value);
     }
 }
