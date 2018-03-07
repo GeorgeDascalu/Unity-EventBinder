@@ -955,9 +955,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetObject: {fileID: 1711205323}
+  eventsCollectionScript: {fileID: 11500000, guid: 860bb2b80267e0444972e73bf91f9fb8,
+    type: 3}
+  eventsCollectionClassType:
+    m_Name: SampleScript
+    m_AssemblyQualifiedName: SampleScript, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   eventTypeIndex: 0
   eventIndex: 4
-  delegateIndex: 6
+  delegateIndex: 0
   eventTriggerType: 4
   eventComponentIndex: 3
   eventPropertyIndex: 0
@@ -969,23 +976,17 @@ MonoBehaviour:
         m_Calls: []
       m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
         Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  argsGameObjectTarget: {fileID: 0}
-  argsComponents:
-  - {fileID: 0}
-  argsComponentIndexes: 00000000
-  argsTargetsPropertiesIndexes: 00000000
-  argsTargetsProperties:
-  - 
-  argumentTypes: 0b000000
-  argsChoiceIndexList: 00000000
-  stringArgs:
-  - FirstEnum
-  gameObjectArgs:
-  - {fileID: 0}
-  componentArgs:
-  - {fileID: 0}
-  colorArgs:
-  - {r: 0, g: 0, b: 0, a: 0}
+  argsGameObjectTarget: {fileID: 111871403}
+  argsComponents: []
+  argsComponentIndexes: 
+  argsTargetsPropertiesIndexes: 
+  argsTargetsProperties: []
+  argumentTypes: 
+  argsChoiceIndexList: 
+  stringArgs: []
+  gameObjectArgs: []
+  componentArgs: []
+  colorArgs: []
 --- !u!114 &1711205329
 MonoBehaviour:
   m_ObjectHideFlags: 0

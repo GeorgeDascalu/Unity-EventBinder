@@ -15,8 +15,13 @@ namespace EventBinder
     public class EventBinderBehaviour : MonoBehaviour
     {
         /**PROPERTIES*/
+        
+        // The GameObject that will be listened to for UI events 
         public GameObject targetObject;
 
+        // The class collection with all the events
+        [HideInInspector] public TextAsset eventsCollectionScript = null;
+        [HideInInspector] public SerializableSystemType eventsCollectionClassType = null;
         
         /**EVENTS & ACTIONS*/
         [HideInInspector] public int eventTypeIndex = 0;
@@ -34,7 +39,7 @@ namespace EventBinder
         [HideInInspector] public EventTriggerType selectedEventTriggerType;
         [HideInInspector] public EventTrigger.Entry eventEntry = null;
 
-        /**ARGUMENTS*/
+        /**ARGUMENTS*/ 
         [HideInInspector] public GameObject argsGameObjectTarget;
         [HideInInspector] public Component[] argsComponents;
         [HideInInspector] public int[] argsComponentIndexes;
@@ -70,6 +75,7 @@ namespace EventBinder
         private void Start()
         {
             RefreshTargetDelegate();
+            Debug.Log ("TYPE : " + eventsCollectionClassType);
         }
 
 #if UNITY_EDITOR
@@ -77,7 +83,7 @@ namespace EventBinder
         // Sets the Taret delegate using the "actionIndex" property
         private void RefreshTargetDelegate()
         {
-            FieldInfo[] fieldsCollection = typeof(EventsCollection).GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            FieldInfo[] fieldsCollection = eventsCollectionClassType.SystemType.GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             targetDelegate = fieldsCollection[delegateIndex].GetValue (null) as Delegate;
         }
         

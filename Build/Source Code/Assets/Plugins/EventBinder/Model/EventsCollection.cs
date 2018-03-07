@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EventBinder
 {
-    public static class EventsCollection
+    public class EventsCollection
     {
         //SAMPLE
         public static event Action eventEmpty = delegate { };

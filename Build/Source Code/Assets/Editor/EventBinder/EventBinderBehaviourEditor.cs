@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,8 +16,10 @@ namespace EventBinder
     [CustomEditor(typeof(EventBinderBehaviour))]
     public class EventBinderBehaviourEditor: Editor
     {
-        private readonly List<Delegate> actionsList = new List<Delegate>();
-        private readonly List<string> actionsNamesList = new List<string>();
+        private static List<Delegate> actionsList = new List<Delegate>();
+        private static List<string> actionsNamesList = new List<string>();
+
+        private bool showArguments;
         
         // Called everytime the Component is in focus 
         public override void OnInspectorGUI()
@@ -30,6 +33,30 @@ namespace EventBinder
             DrawDefaultInspector();
             
             EditorGUILayout.Space();
+            
+            // Select the EventsCollection class - let the user add his own class
+            behaviour.eventsCollectionScript = EditorGUILayout.ObjectField ("Events Class", behaviour.eventsCollectionScript, typeof(MonoScript), true) as TextAsset;
+
+            MonoScript eventsScript = null;
+            try
+            {
+                eventsScript = (MonoScript) behaviour.eventsCollectionScript;
+            }
+            // If no class was selected, select the default class, with the name "EventsCollection" 
+            catch (Exception e)
+            {
+                string[] assets = AssetDatabase.FindAssets ("EventsCollection");
+                string guid = AssetDatabase.GUIDToAssetPath (assets[0]);
+
+                eventsScript = AssetDatabase.LoadAssetAtPath<MonoScript> (guid);
+                behaviour.eventsCollectionScript = eventsScript;
+            }
+
+            behaviour.eventsCollectionClassType = new SerializableSystemType(eventsScript.GetClass());
+            
+            // Add a GUI Space
+            EditorGUILayout.Space();
+            
             
             // Check if behaviour is null & Setup Target GameObject
             if (behaviour != null && behaviour.targetObject == null) 
@@ -111,7 +138,10 @@ namespace EventBinder
             // Get actions list
             // Save the Actions in "actionsList"
             // Save the Action names in the "actionNamesList"
-            FieldInfo[] fieldsCollection = typeof(EventsCollection).GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            
+            actionsList = new List<Delegate>();
+            actionsNamesList = new List<string>();
+            FieldInfo[] fieldsCollection = behaviour.eventsCollectionClassType.SystemType.GetFields (BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             foreach (FieldInfo fieldInfo in fieldsCollection)
             {
                 actionsList.Add (fieldInfo.GetValue (null) as Delegate); 
@@ -122,9 +152,10 @@ namespace EventBinder
             EditorGUILayout.Space(); EditorGUILayout.Space();
             
             // Save the deleateIndex and the targetDelegate to the Behaviour class after the user has made a choice
+            if (behaviour.delegateIndex > actionsNamesList.Count) behaviour.delegateIndex = 0;
             behaviour.delegateIndex = EditorGUILayout.Popup ("Event Delegate", behaviour.delegateIndex, actionsNamesList.ToArray());
             behaviour.targetDelegate = actionsList[behaviour.delegateIndex];
-             
+ 
             // Initializez all List components from the behaviour
             CreateArgumentsLists (behaviour);
             
@@ -135,176 +166,188 @@ namespace EventBinder
                 
                 // If the selected TargetDelegate has any parameters -> Add 2 spaces to the GUI
                 if (parametersList.Length > 0)
-                    EditorGUILayout.Space(); EditorGUILayout.Space();
-                
-                // Iterate through all parameters
-                for (int index = 0; index < parametersList.Length; index++)
                 {
-                    ParameterInfo parameterInfo = parametersList[index];
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
 
-                    string textFieldName = parameterInfo.Name;
-                    if (textFieldName == "") textFieldName = "Argument " + (index + 1);
+                    showArguments = EditorGUILayout.Foldout (showArguments,"Arguments");
 
-                    // Show the NAME and the TYPE of the parameter
-                    EditorGUILayout.LabelField (textFieldName + ": " + parameterInfo.ParameterType, EditorStyles.boldLabel);
-           
-                    behaviour.argsChoiceIndexList[index] = EditorGUILayout.Popup ("Argument type", behaviour.argsChoiceIndexList[index], Enum.GetNames (typeof(EventArgumentKind)));
-                    //STRING
-                    if (parameterInfo.ParameterType == typeof(string))
+                    if (showArguments)
                     {
-                        if (behaviour.argsChoiceIndexList[index] == 0) behaviour.stringArgs[index] = EditorGUILayout.TextField ("Value", behaviour.stringArgs[index]);
-                        else SetupDynamicArgument (behaviour, index, typeof(string));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.String;
-                    }
-                    
-                    /**SYSTEM TYPE ARGUMENTS*/
-                    
-                    //BOOLEAN
-                    if (parameterInfo.ParameterType == typeof(bool))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
+                        // Iterate through all parameters
+                        for (int index = 0; index < parametersList.Length; index++)
                         {
-                            if (string.IsNullOrEmpty(behaviour.stringArgs[index])) behaviour.stringArgs[index] = "false";
-                            behaviour.stringArgs[index] = EditorGUILayout.Toggle ("Value", Convert.ToBoolean (behaviour.stringArgs[index])).ToString();
-                        }
-                        else SetupDynamicArgument (behaviour, index, typeof(bool));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Boolean;
-                    }
-                
-                    /**NUMBER TYPE ARGUMENTS*/
-                
-                    //INT
-                    else if (parameterInfo.ParameterType == typeof(int))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
-                        {
-                            if (string.IsNullOrEmpty(behaviour.stringArgs[index])) behaviour.stringArgs[index] = "0";
-                            behaviour.stringArgs[index] = EditorGUILayout.IntField ("Value", behaviour.stringArgs[index].ParseToInt()).ToString();
-                        }
-                        else SetupDynamicArgument (behaviour, index, typeof(int));
-                        
-                        behaviour.argumentTypes[index] = EventArgumentType.Int;
-                    }
-                    //FLOAT
-                    else if (parameterInfo.ParameterType == typeof(float))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
-                        {
-                            if (string.IsNullOrEmpty(behaviour.stringArgs[index])) behaviour.stringArgs[index] = "0";
-                            behaviour.stringArgs[index] = EditorGUILayout.FloatField ("Value", behaviour.stringArgs[index].ParseToFloat()).ToString(CultureInfo.InvariantCulture);
-                        }
-                        else SetupDynamicArgument (behaviour, index, typeof(float));
+                            ParameterInfo parameterInfo = parametersList[index];
 
-                        behaviour.argumentTypes[index] = EventArgumentType.Float;
-                    }
-                    //DOUBLE
-                    else if (parameterInfo.ParameterType == typeof(double))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
-                        {
-                            if (string.IsNullOrEmpty(behaviour.stringArgs[index])) behaviour.stringArgs[index] = "0";
-                            behaviour.stringArgs[index] = EditorGUILayout.DoubleField ("Value", behaviour.stringArgs[index].ParseToDouble()).ToString(CultureInfo.InvariantCulture);
+                            string textFieldName = parameterInfo.Name;
+                            if (textFieldName == "") textFieldName = "Argument " + (index + 1);
+
+                            // Show the NAME and the TYPE of the parameter
+                            EditorGUILayout.LabelField (textFieldName + ": " + parameterInfo.ParameterType, EditorStyles.boldLabel);
+
+                            behaviour.argsChoiceIndexList[index] = EditorGUILayout.Popup ("Argument type", behaviour.argsChoiceIndexList[index], Enum.GetNames (typeof(EventArgumentKind)));
+                            //STRING
+                            if (parameterInfo.ParameterType == typeof(string))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0) behaviour.stringArgs[index] = EditorGUILayout.TextField ("Value", behaviour.stringArgs[index]);
+                                else SetupDynamicArgument (behaviour, index, typeof(string));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.String;
+                            }
+
+                            /**SYSTEM TYPE ARGUMENTS*/
+
+                            //BOOLEAN
+                            if (parameterInfo.ParameterType == typeof(bool))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    if (string.IsNullOrEmpty (behaviour.stringArgs[index])) behaviour.stringArgs[index] = "false";
+                                    behaviour.stringArgs[index] = EditorGUILayout.Toggle ("Value", Convert.ToBoolean (behaviour.stringArgs[index])).ToString();
+                                }
+                                else SetupDynamicArgument (behaviour, index, typeof(bool));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Boolean;
+                            }
+
+                            /**NUMBER TYPE ARGUMENTS*/
+
+                            //INT
+                            else if (parameterInfo.ParameterType == typeof(int))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    if (string.IsNullOrEmpty (behaviour.stringArgs[index])) behaviour.stringArgs[index] = "0";
+                                    behaviour.stringArgs[index] = EditorGUILayout.IntField ("Value", behaviour.stringArgs[index].ParseToInt()).ToString();
+                                }
+                                else SetupDynamicArgument (behaviour, index, typeof(int));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Int;
+                            }
+                            //FLOAT
+                            else if (parameterInfo.ParameterType == typeof(float))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    if (string.IsNullOrEmpty (behaviour.stringArgs[index])) behaviour.stringArgs[index] = "0";
+                                    behaviour.stringArgs[index] = EditorGUILayout.FloatField ("Value", behaviour.stringArgs[index].ParseToFloat()).ToString (CultureInfo.InvariantCulture);
+                                }
+                                else SetupDynamicArgument (behaviour, index, typeof(float));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Float;
+                            }
+                            //DOUBLE
+                            else if (parameterInfo.ParameterType == typeof(double))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    if (string.IsNullOrEmpty (behaviour.stringArgs[index])) behaviour.stringArgs[index] = "0";
+                                    behaviour.stringArgs[index] = EditorGUILayout.DoubleField ("Value", behaviour.stringArgs[index].ParseToDouble()).ToString (CultureInfo.InvariantCulture);
+                                }
+                                else SetupDynamicArgument (behaviour, index, typeof(double));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Double;
+                            }
+
+                            /**VECTOR TYPE ARGUMENTS*/
+
+                            //VECTOR 2
+                            else if (parameterInfo.ParameterType == typeof(Vector2))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    if (string.IsNullOrEmpty (behaviour.stringArgs[index]) || !behaviour.stringArgs[index].CanDeserializeToVector2())
+                                        behaviour.stringArgs[index] = new Vector2().SerializeToString();
+                                    behaviour.stringArgs[index] = EditorGUILayout.Vector2Field ("Value", behaviour.stringArgs[index].DeserializeToVector2()).SerializeToString();
+                                }
+                                else SetupDynamicArgument (behaviour, index, typeof(Vector2));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Vector2;
+                            }
+                            //VECTOR 3
+                            else if (parameterInfo.ParameterType == typeof(Vector3))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    if (string.IsNullOrEmpty (behaviour.stringArgs[index]) || !behaviour.stringArgs[index].CanDeserializeToVector3())
+                                        behaviour.stringArgs[index] = new Vector3().SerializeToString();
+                                    behaviour.stringArgs[index] = EditorGUILayout.Vector3Field ("Value", behaviour.stringArgs[index].DeserializeToVector3()).SerializeToString();
+                                }
+                                else SetupDynamicArgument (behaviour, index, typeof(Vector3));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Vector3;
+                            }
+                            //VECTOR 4
+                            else if (parameterInfo.ParameterType == typeof(Vector4))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    if (string.IsNullOrEmpty (behaviour.stringArgs[index]) || !behaviour.stringArgs[index].CanDeserializeToVector4())
+                                        behaviour.stringArgs[index] = new Vector4().SerializeToString();
+                                    behaviour.stringArgs[index] = EditorGUILayout.Vector4Field ("Value", behaviour.stringArgs[index].DeserializeToVector4()).SerializeToString();
+                                }
+                                else SetupDynamicArgument (behaviour, index, typeof(Vector4));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Vector4;
+                            }
+
+                            /**GAME OBJECT TYPE ARGUMENTS*/
+
+                            //GAME OBJECT
+                            else if (parameterInfo.ParameterType == typeof(GameObject))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                    behaviour.gameObjectArgs[index] = EditorGUILayout.ObjectField ("Value", behaviour.gameObjectArgs[index], typeof(GameObject), true) as GameObject;
+                                else SetupDynamicArgument (behaviour, index, typeof(GameObject));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.GameObject;
+                            }
+
+                            //COMPONENT
+                            else if (parameterInfo.ParameterType == typeof(Component))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                    behaviour.componentArgs[index] = EditorGUILayout.ObjectField ("Value", behaviour.componentArgs[index], typeof(Component), true) as Component;
+                                else SetupDynamicArgument (behaviour, index, typeof(Component));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Component;
+                            }
+
+                            /**OTHER TYPE ARGUMENTS*/
+
+                            //COLOR
+                            else if (parameterInfo.ParameterType == typeof(Color))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0) behaviour.colorArgs[index] = EditorGUILayout.ColorField ("Value", behaviour.colorArgs[index]);
+                                else SetupDynamicArgument (behaviour, index, typeof(Color));
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Color;
+                            }
+
+                            //ENUM
+                            else if (parameterInfo.ParameterType.BaseType == typeof(Enum))
+                            {
+                                if (behaviour.argsChoiceIndexList[index] == 0)
+                                {
+                                    string[] enumNames = Enum.GetNames (parameterInfo.ParameterType);
+                                    int indexPrevSelectedArg = Array.IndexOf (enumNames, behaviour.stringArgs[index]);
+                                    if (indexPrevSelectedArg == -1) indexPrevSelectedArg = 0;
+                                    behaviour.stringArgs[index] = enumNames.GetValue (EditorGUILayout.Popup ("Value", indexPrevSelectedArg, enumNames)).ToString();
+                                }
+                                else SetupDynamicArgument (behaviour, index, parameterInfo.ParameterType);
+
+                                behaviour.argumentTypes[index] = EventArgumentType.Enum;
+                            }
+
+                            if (index < parametersList.Length - 1)
+                            {
+                                EditorGUILayout.Space();
+                                EditorGUILayout.Space();
+                            }
                         }
-                        else SetupDynamicArgument (behaviour, index, typeof(double));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Double;
                     }
-                
-                    /**VECTOR TYPE ARGUMENTS*/
-                
-                    //VECTOR 2
-                    else if (parameterInfo.ParameterType == typeof(Vector2))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
-                        {
-                            if (string.IsNullOrEmpty(behaviour.stringArgs[index]) || !behaviour.stringArgs[index].CanDeserializeToVector2()) 
-                                behaviour.stringArgs[index] = new Vector2().SerializeToString();
-                            behaviour.stringArgs[index] = EditorGUILayout.Vector2Field ("Value", behaviour.stringArgs[index].DeserializeToVector2()).SerializeToString();
-                        }
-                        else SetupDynamicArgument (behaviour, index, typeof(Vector2));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Vector2;
-                    }
-                    //VECTOR 3
-                    else if (parameterInfo.ParameterType == typeof(Vector3))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
-                        {
-                            if (string.IsNullOrEmpty(behaviour.stringArgs[index]) || !behaviour.stringArgs[index].CanDeserializeToVector3()) 
-                                behaviour.stringArgs[index] = new Vector3().SerializeToString();
-                            behaviour.stringArgs[index] = EditorGUILayout.Vector3Field ("Value", behaviour.stringArgs[index].DeserializeToVector3()).SerializeToString();
-                        }
-                        else SetupDynamicArgument (behaviour, index, typeof(Vector3));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Vector3;
-                    }
-                    //VECTOR 4
-                    else if (parameterInfo.ParameterType == typeof(Vector4))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
-                        {
-                            if (string.IsNullOrEmpty(behaviour.stringArgs[index]) || !behaviour.stringArgs[index].CanDeserializeToVector4()) 
-                                behaviour.stringArgs[index] = new Vector4().SerializeToString();
-                            behaviour.stringArgs[index]   = EditorGUILayout.Vector4Field ("Value", behaviour.stringArgs[index].DeserializeToVector4()).SerializeToString();
-                        }
-                        else SetupDynamicArgument (behaviour, index, typeof(Vector4));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Vector4;
-                    }
-                
-                    /**GAME OBJECT TYPE ARGUMENTS*/
-                
-                    //GAME OBJECT
-                    else if (parameterInfo.ParameterType == typeof(GameObject))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0) 
-                            behaviour.gameObjectArgs[index] = EditorGUILayout.ObjectField ("Value", behaviour.gameObjectArgs[index], typeof(GameObject), true) as GameObject;
-                        else SetupDynamicArgument (behaviour, index, typeof(GameObject));
-                    
-                        behaviour.argumentTypes[index]  = EventArgumentType.GameObject;
-                    }
-                
-                    //COMPONENT
-                    else if (parameterInfo.ParameterType == typeof(Component))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0) 
-                            behaviour.componentArgs[index] = EditorGUILayout.ObjectField ("Value", behaviour.componentArgs[index], typeof(Component), true) as Component;
-                        else SetupDynamicArgument (behaviour, index, typeof(Component));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Component;
-                    }
-                
-                    /**OTHER TYPE ARGUMENTS*/
-                
-                    //COLOR
-                    else if (parameterInfo.ParameterType == typeof(Color))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0) behaviour.colorArgs[index] = EditorGUILayout.ColorField ("Value", behaviour.colorArgs[index]);
-                        else SetupDynamicArgument (behaviour, index, typeof(Color));
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Color;
-                    }
-                    
-                    //ENUM
-                    else if (parameterInfo.ParameterType.BaseType == typeof(Enum))
-                    {
-                        if (behaviour.argsChoiceIndexList[index] == 0)
-                        {
-                            string[] enumNames = Enum.GetNames (parameterInfo.ParameterType);
-                            int indexPrevSelectedArg = Array.IndexOf (enumNames, behaviour.stringArgs[index]);
-                            if (indexPrevSelectedArg == -1) indexPrevSelectedArg = 0;
-                            behaviour.stringArgs[index] = enumNames.GetValue(EditorGUILayout.Popup ("Value", indexPrevSelectedArg, enumNames)).ToString();
-                        }
-                        else SetupDynamicArgument (behaviour, index, parameterInfo.ParameterType);
-                    
-                        behaviour.argumentTypes[index] = EventArgumentType.Enum;
-                    }
-                
-                    EditorGUILayout.Space(); EditorGUILayout.Space();
                 }
-                
+
             }
 
             if (!Application.isPlaying) EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
