@@ -293,7 +293,7 @@ namespace EventBinder
                         if (behaviour.argsChoiceIndexList[index] == 0)
                         {
                             string[] enumNames = Enum.GetNames (parameterInfo.ParameterType);
-                            int indexPrevSelectedArg = enumNames.IndexOf (behaviour.stringArgs[index]);
+                            int indexPrevSelectedArg = Array.IndexOf (enumNames, behaviour.stringArgs[index]);
                             if (indexPrevSelectedArg == -1) indexPrevSelectedArg = 0;
                             behaviour.stringArgs[index] = enumNames.GetValue(EditorGUILayout.Popup ("Value", indexPrevSelectedArg, enumNames)).ToString();
                         }

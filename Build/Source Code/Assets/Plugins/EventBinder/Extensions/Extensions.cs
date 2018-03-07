@@ -6,8 +6,8 @@ namespace EventBinder
 {
     public static class Extensions
     {
-        private const string vectorStringSeparator = " ";
-        
+        private static readonly char[] vectorStringSeparator = {' '};
+
         /**STRING*/
 
         public static int ParseToInt(this string target)
@@ -37,22 +37,22 @@ namespace EventBinder
         
         public static bool CanDeserializeToVector2(this string target)
         {
-            return target.Split (vectorStringSeparator.ToCharArray()).Length == 2;
+            return target.Split (vectorStringSeparator).Length == 2;
         }
         
         public static bool CanDeserializeToVector3(this string target)
         {
-            return target.Split (vectorStringSeparator.ToCharArray()).Length == 3;
+            return target.Split (vectorStringSeparator).Length == 3;
         }
         
         public static bool CanDeserializeToVector4(this string target)
         {
-            return target.Split (vectorStringSeparator.ToCharArray()).Length == 4;
+            return target.Split (vectorStringSeparator).Length == 4;
         }
         
         public static Vector2 DeserializeToVector2(this string target)
         {
-            string[] values = target.Split(vectorStringSeparator.ToCharArray());
+            string[] values = target.Split(vectorStringSeparator);
             if (values.Length != 2) throw new FormatException("component count mismatch. Expected 2 components but got " + values.Length);
             Vector2 result = new Vector2(float.Parse(values[0]), float.Parse(values[1]));
             return result;
@@ -60,7 +60,7 @@ namespace EventBinder
         
         public static Vector3 DeserializeToVector3(this string target)
         {
-            string[] values = target.Split(vectorStringSeparator.ToCharArray());
+            string[] values = target.Split(vectorStringSeparator);
             if (values.Length != 3) throw new FormatException("component count mismatch. Expected 3 components but got " + values.Length);
             Vector3 result = new Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]));
             return result;
@@ -68,24 +68,10 @@ namespace EventBinder
         
         public static Vector4 DeserializeToVector4(this string target)
         {
-            
-            string[] values = target.Split(vectorStringSeparator.ToCharArray());
+            string[] values = target.Split(vectorStringSeparator);
             if (values.Length != 4) throw new FormatException("component count mismatch. Expected 4 components but got " + values.Length);
             Vector4 result = new Vector4(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3]));
             return result;
-        }
-        
-        /**ARRAY*/
-        public static int IndexOf(this Array target, object value)
-        {
-            int index = -1;
-
-            for (int i = 0; i < target.Length; i++)
-            {
-                if (target.GetValue (i) == value) return i;
-            }
-            
-            return index;
         }
         
         
